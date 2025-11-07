@@ -16,81 +16,65 @@ let currentPage = 1;
 let totalPages = 1;
 const limit = 5;
 
-document.addEventListener('DOMContentLoaded', () => 
-{
-    loadStudents();
-    setupFormHandler();
-    setupCancelHandler();
-    setupPaginationControls();//2.0
+document.addEventListener('DOMContentLoaded', async () => {
+    await Promise.allSettled([loadStudents(),
+    setupFormHandler(),
+    setupCancelHandler(),
+    setupPaginationControls(),])
 });
-  
-function setupFormHandler()
-{
+
+function setupFormHandler() {
     const form = document.getElementById('studentForm');
-    form.addEventListener('submit', async e => 
-    {
+    form.addEventListener('submit', async e => {
         e.preventDefault();
         const student = getFormData();
-    
-        try 
-        {
-            if (student.id) 
-            {
+
+        try {
+            if (student.id) {
                 await studentsAPI.update(student);
-            } 
-            else 
-            {
+            }
+            else {
                 await studentsAPI.create(student);
             }
             clearForm();
             loadStudents();
         }
-        catch (err)
-        {
+        catch (err) {
             console.error(err.message);
         }
     });
 }
 
-function setupCancelHandler()
-{
+function setupCancelHandler() {
     const cancelBtn = document.getElementById('cancelBtn');
-    cancelBtn.addEventListener('click', () => 
-    {
+    cancelBtn.addEventListener('click', () => {
         document.getElementById('studentId').value = '';
     });
 }
 
 //2.0
-function setupPaginationControls() 
-{
-    document.getElementById('prevPage').addEventListener('click', () => 
-    {
-        if (currentPage > 1) 
-        {
+function setupPaginationControls() {
+    document.getElementById('prevPage').addEventListener('click', () => {
+        if (currentPage > 1) {
             currentPage--;
             loadStudents();
         }
     });
 
-    document.getElementById('nextPage').addEventListener('click', () => 
-    {
-        if (currentPage < totalPages) 
-        {
+    document.getElementById('nextPage').addEventListener('click', () => {
+        if (currentPage < totalPages) {
             currentPage++;
             loadStudents();
         }
     });
 
-    document.getElementById('resultsPerPage').addEventListener('change', e => 
-    {
+    document.getElementById('resultsPerPage').addEventListener('change', e => {
         currentPage = 1;
         loadStudents();
     });
 }
-  
-function getFormData()
-{
+
+function getFormData() {
     return {
         id: document.getElementById('studentId').value.trim(),
         fullname: document.getElementById('fullname').value.trim(),
@@ -98,95 +82,81 @@ function getFormData()
         age: parseInt(document.getElementById('age').value.trim(), 10)
     };
 }
-  
-function clearForm()
-{
+
+function clearForm() {
     document.getElementById('studentForm').reset();
     document.getElementById('studentId').value = '';
 }
 
 //2.0
-async function loadStudents()
-{
-    try 
-    {
+async function loadStudents() {
+    try {
         const resPerPage = parseInt(document.getElementById('resultsPerPage').value, 10) || limit;
         const data = await studentsAPI.fetchPaginated(currentPage, resPerPage);
-        console.log(data);
         renderStudentTable(data.students);
         totalPages = Math.ceil(data.total / resPerPage);
         document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
-    } 
-    catch (err) 
-    {
+    }
+    catch (err) {
         console.error('Error cargando estudiantes:', err.message);
     }
 }
-  
-function renderStudentTable(students)
-{
+
+function renderStudentTable(students) {
     const tbody = document.getElementById('studentTableBody');
     tbody.replaceChildren();
-  
-    students.forEach(student => 
-    {
+
+    students.forEach(student => {
         const tr = document.createElement('tr');
-    
+
         tr.appendChild(createCell(student.fullname));
         tr.appendChild(createCell(student.email));
         tr.appendChild(createCell(student.age.toString()));
         tr.appendChild(createActionsCell(student));
-    
+
         tbody.appendChild(tr);
     });
 }
-  
-function createCell(text)
-{
+
+function createCell(text) {
     const td = document.createElement('td');
     td.textContent = text;
     return td;
 }
-  
-function createActionsCell(student)
-{
+
+function createActionsCell(student) {
     const td = document.createElement('td');
-  
+
     const editBtn = document.createElement('button');
     editBtn.textContent = 'Editar';
     editBtn.className = 'w3-button w3-blue w3-small';
     editBtn.addEventListener('click', () => fillForm(student));
-  
+
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'Borrar';
     deleteBtn.className = 'w3-button w3-red w3-small w3-margin-left';
     deleteBtn.addEventListener('click', () => confirmDelete(student.id));
-  
+
     td.appendChild(editBtn);
     td.appendChild(deleteBtn);
     return td;
 }
-  
-function fillForm(student)
-{
+
+function fillForm(student) {
     document.getElementById('studentId').value = student.id;
     document.getElementById('fullname').value = student.fullname;
     document.getElementById('email').value = student.email;
     document.getElementById('age').value = student.age;
 }
-  
-async function confirmDelete(id) 
-{
+
+async function confirmDelete(id) {
     if (!confirm('¿Estás seguro que deseas borrar este estudiante?')) return;
-  
-    try 
-    {
+
+    try {
         await studentsAPI.remove(id);
         loadStudents();
-    } 
-    catch (err) 
-    {
+    }
+    catch (err) {
         console.error('Error al borrar:', err.message);
     }
 }
-  

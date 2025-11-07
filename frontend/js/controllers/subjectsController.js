@@ -131,7 +131,7 @@ async function confirmDeleteSubject(id)
     }
     catch (err)
     {
-        toast.error(err.message ?? 'Error al borrar materia.');
+        toast.error('Error al borrar materia.');
         console.error({ err });
     }
 }
