@@ -4,6 +4,7 @@ const base = {
   duration: 3000,
   gravity: "top",
   position: "center",
+  close: true,
 };
 
 export const toast = {
