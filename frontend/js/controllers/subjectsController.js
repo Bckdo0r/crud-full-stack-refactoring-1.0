@@ -9,6 +9,7 @@
 */
 
 import { subjectsAPI } from '../api/subjectsAPI.js';
+import { toast } from '../utils/toaster.js';
 
 document.addEventListener('DOMContentLoaded', () => 
 {
@@ -130,6 +131,7 @@ async function confirmDeleteSubject(id)
     }
     catch (err)
     {
-        console.error('Error al borrar materia:', err.message);
+        toast.error(err.message ?? 'Error al borrar materia.');
+        console.error({ err });
     }
 }
