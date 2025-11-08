@@ -10,6 +10,7 @@
 */
 
 require_once("./repositories/subjects.php");
+require_once("./repositories/studentsSubjects.php");
 
 function handleGet($conn) 
 {
@@ -61,9 +62,16 @@ function handlePut($conn)
 
 function handleDelete($conn) 
 {
-    $input = json_decode(file_get_contents("php://input"), true);
+    $id = json_decode(file_get_contents("php://input"), true)['id'];
     
-    $result = deleteSubject($conn, $input['id']);
+    if (subjectHasStudents($conn, $id))
+    {
+        http_response_code(500);
+        echo json_encode(["error" => "No se pudo eliminar ya que existen estudiantes asociados a esta materia"]);
+        return;
+    }
+
+    $result = deleteSubject($conn, $id);
     if ($result['deleted'] > 0) 
     {
         echo json_encode(["message" => "Materia eliminada correctamente"]);

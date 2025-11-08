@@ -16,8 +16,7 @@ function assignSubjectToStudent($conn, $student_id, $subject_id, $approved)
     $stmt->bind_param("iii", $student_id, $subject_id, $approved);
     $stmt->execute();
 
-    return 
-    [
+    return [
         'inserted' => $stmt->affected_rows,        
         'id' => $conn->insert_id
     ];
@@ -52,6 +51,17 @@ function getSubjectsByStudent($conn, $student_id)
     $result= $stmt->get_result();
 
     return $result->fetch_all(MYSQLI_ASSOC); 
+}
+
+function subjectHasStudents($conn, $subject_id) 
+{
+    $sql = "SELECT 1 FROM students_subjects WHERE subject_id = ? LIMIT 1";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $subject_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    return $result->num_rows > 0; 
 }
 
 function updateStudentSubject($conn, $id, $student_id, $subject_id, $approved) 

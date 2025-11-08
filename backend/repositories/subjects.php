@@ -53,14 +53,16 @@ function updateSubject($conn, $id, $name)
 
 function deleteSubject($conn, $id) 
 {
-    $sql = "DELETE FROM subjects
+    $sql = "
+        DELETE FROM subjects
         WHERE id = ?
         AND NOT EXISTS (
             SELECT 1
-            FROM student_subjects ss
+            FROM students_subjects ss
             WHERE ss.subject_id = subjects.id
-        );"
-    ;
+        )
+    ";
+
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $id);
     $stmt->execute();

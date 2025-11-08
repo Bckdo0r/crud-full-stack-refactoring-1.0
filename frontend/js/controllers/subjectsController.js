@@ -123,15 +123,11 @@ function createSubjectActionsCell(subject)
 async function confirmDeleteSubject(id)
 {
     if (!confirm('¿Seguro que deseas borrar esta materia?')) return;
-
-    try
-    {
-        await subjectsAPI.remove(id);
-        loadSubjects();
-    }
-    catch (err)
-    {
-        toast.error('Error al borrar materia.');
-        console.error({ err });
-    }
+    
+    const { message, error } = await subjectsAPI.remove(id);
+    if (error) 
+        return toast.error(error);
+        
+    toast.success(message);
+    loadSubjects();
 }
