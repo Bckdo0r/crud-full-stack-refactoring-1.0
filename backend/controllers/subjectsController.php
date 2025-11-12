@@ -31,8 +31,22 @@ function handleGet($conn)
 function handlePost($conn) 
 {
     $input = json_decode(file_get_contents("php://input"), true);
+    $name = trim($input['name'] ?? '');
 
-    $result = createSubject($conn, $input['name']);
+    if (empty($name)) {
+        http_response_code(400);
+        echo json_encode(["error" => "El nombre de la materia no puede estar vacío"]);
+        return;
+    }
+
+    $existing = getSubjectByName($conn, $name);
+    if ($existing) {
+        http_response_code(400);
+        echo json_encode(["error" => "Ya existe una materia con ese nombre"]);
+        return;
+    }
+
+    $result = createSubject($conn, $name);
     if ($result['inserted'] > 0) 
     {
         echo json_encode(["message" => "Materia creada correctamente"]);
@@ -47,8 +61,29 @@ function handlePost($conn)
 function handlePut($conn) 
 {
     $input = json_decode(file_get_contents("php://input"), true);
+    $id = $input['id'] ?? null;
+    $name = trim($input['name'] ?? '');
 
-    $result = updateSubject($conn, $input['id'], $input['name']);
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(["error" => "Falta id"]);
+        return;
+    }
+
+    if ($name === '') {
+        http_response_code(400);
+        echo json_encode(["error" => "El nombre no puede estar vacío"]);
+        return;
+    }
+
+    $existing = getSubjectByName($conn, $name);
+    if ($existing && $existing['id'] != $id) {
+        http_response_code(409); 
+        echo json_encode(["error" => "Ya existe otra materia con ese nombre"]);
+        return;
+    }
+
+    $result = updateSubject($conn, $id, $name);
     if ($result['updated'] > 0) 
     {
         echo json_encode(["message" => "Materia actualizada correctamente"]);

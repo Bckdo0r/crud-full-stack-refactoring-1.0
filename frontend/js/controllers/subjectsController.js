@@ -30,15 +30,27 @@ function setupSubjectFormHandler()
             name: document.getElementById('name').value.trim()
         };
 
+        if (!subject.name) {
+            return toast.error('El nombre no puede estar vacío');
+        }
+
         try 
-        {
+        {   
+            const subjects = await subjectsAPI.fetchAll();
+            const duplicate = subjects.find(s => s.name.toLowerCase() === subject.name.toLowerCase() && String(s.id) !== String(subject.id));
+            if (duplicate) {
+                return toast.error('Ya existe una materia con ese nombre');
+            }
+
             if (subject.id) 
             {
                 await subjectsAPI.update(subject);
+                toast.success('Materia actualizada correctamente');
             }
             else
             {
                 await subjectsAPI.create(subject);
+                toast.success('Materia creada correctamente');
             }
             
             form.reset();
@@ -47,7 +59,12 @@ function setupSubjectFormHandler()
         }
         catch (err)
         {
-            console.error(err.message);
+            try {
+                const body = await err?.response?.json?.();
+                if (body && body.error) return toast.error(body.error);
+            } catch (_) {}
+            console.error(err);
+            toast.error('Error en la operación');
         }
   });
 }

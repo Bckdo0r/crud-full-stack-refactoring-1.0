@@ -9,6 +9,14 @@
 *    Iteration   : 3.0 ( prototype )
 */
 
+function getSubjectByName($conn, $name)
+{
+    $sql = "SELECT * FROM subjects WHERE name = :name LIMIT 1";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([':name' => $name]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
 function getAllSubjects($conn) 
 {
     $sql = "SELECT * FROM subjects";
