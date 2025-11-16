@@ -29,12 +29,19 @@ function setupFormHandler() {
         e.preventDefault();
         const student = getFormData();
 
-        try {
+         try {
             if (student.id) {
                 await studentsAPI.update(student);
             }
             else {
-                await studentsAPI.create(student);
+                const existe_mail=await studentsAPI.existeEmail(student.email);
+                if (existe_mail) {
+                    alert('El correo ya existe. Por favor, ingrese otro.');
+                    return;
+                }
+                else {
+                    await studentsAPI.create(student);
+                }
             }
             clearForm();
             loadStudents();

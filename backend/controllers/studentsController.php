@@ -34,6 +34,14 @@ function handleGet($conn)
             'total' => $total        // ya es entero
         ]);
     }
+    // Verificar si se solicita la validación de correo
+    else if (isset($_GET['email'])) 
+    {
+        $email = $_GET['email'];
+        $exists = emailExists($conn, $email);
+
+        echo json_encode(['exists' => $exists]);
+    }
     else
     {
         $students = getAllStudents($conn); // ya es array
@@ -45,6 +53,13 @@ function handlePost($conn)
 {
     $input = json_decode(file_get_contents("php://input"), true);
 
+    if (emailExists($conn, $input['email']))
+    {
+        http_response_code(400);
+        echo json_encode(["error" => "El email ya existe. Por favor usa otro email"]);
+        return;
+    }
+    
     $result = createStudent($conn, $input['fullname'], $input['email'], $input['age']);
     if ($result['inserted'] > 0) 
     {
