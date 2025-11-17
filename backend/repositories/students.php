@@ -48,6 +48,10 @@ function getStudentById($conn, $id)
 
 function createStudent($conn, $fullname, $email, $age) 
 {
+    if(emailExists($conn, $email)) {
+        return ['inserted' => 0,'id' => null ];
+    }
+    
     $sql = "INSERT INTO students (fullname, email, age) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ssi", $fullname, $email, $age);
@@ -82,5 +86,17 @@ function deleteStudent($conn, $id)
 
     //Se retorna fila afectadas para validar en controlador
     return ['deleted' => $stmt->affected_rows];
+}
+
+function emailExists($conn, $email) 
+{
+    $stmt = $conn->prepare("SELECT COUNT(*) AS count FROM students WHERE email = ?");
+    $stmt->bind_param("s", $email); // "s" indica que el parámetro es un string
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $data = $result->fetch_assoc();
+
+    // Retorna true si el correo ya existe, de lo contrario false
+    return $data['count'] > 0;
 }
 ?>
