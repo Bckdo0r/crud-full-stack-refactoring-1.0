@@ -9,12 +9,16 @@
 *    Iteration   : 3.0 ( prototype )
 */
 
-function getSubjectByName($conn, $name)
+function subjectNameExists($conn, $name)
 {
-    $sql = "SELECT * FROM subjects WHERE name = :name LIMIT 1";
+    $sql = "SELECT COUNT(*) AS count FROM subjects WHERE name = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->execute([':name' => $name]);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt->bind_param("s", $name);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $data = $result->fetch_assoc();
+
+    return $data['count'] > 0;
 }
 
 function getAllSubjects($conn) 
@@ -35,8 +39,15 @@ function getSubjectById($conn, $id)
     return $result->fetch_assoc(); 
 }
 
-function createSubject($conn, $name) 
+function createSubject($conn, $name)
 {
+    if (subjectNameExists($conn, $name)) {
+        return [
+            'inserted' => 0,
+            'id' => null
+        ];
+    }
+
     $sql = "INSERT INTO subjects (name) VALUES (?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $name);

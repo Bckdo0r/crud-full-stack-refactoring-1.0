@@ -39,22 +39,13 @@ function handlePost($conn)
         return;
     }
 
-    $existing = getSubjectByName($conn, $name);
-    if ($existing) {
-        http_response_code(400);
-        echo json_encode(["error" => "Ya existe una materia con ese nombre"]);
-        return;
-    }
-
     $result = createSubject($conn, $name);
-    if ($result['inserted'] > 0) 
-    {
+
+    if ($result['inserted'] > 0) {
         echo json_encode(["message" => "Materia creada correctamente"]);
-    } 
-    else 
-    {
-        http_response_code(500);
-        echo json_encode(["error" => "No se pudo crear"]);
+    } else {
+        http_response_code(400); // o 500, pero 400 tiene sentido para “request inválido”
+        echo json_encode(["error" => "No se pudo crear la materia (ya existe o error en la BD)"]);
     }
 }
 
