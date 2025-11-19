@@ -41,13 +41,6 @@ function getSubjectById($conn, $id)
 
 function createSubject($conn, $name)
 {
-    if (subjectNameExists($conn, $name)) {
-        return [
-            'inserted' => 0,
-            'id' => null
-        ];
-    }
-
     $sql = "INSERT INTO subjects (name) VALUES (?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $name);

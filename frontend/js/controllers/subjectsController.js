@@ -36,21 +36,17 @@ function setupSubjectFormHandler()
 
         try 
         {   
-            const subjects = await subjectsAPI.fetchAll();
-            const duplicate = subjects.find(s => s.name.toLowerCase() === subject.name.toLowerCase() && String(s.id) !== String(subject.id));
-            if (duplicate) {
-                return toast.error('Ya existe una materia con ese nombre');
-            }
-
             if (subject.id) 
             {
-                await subjectsAPI.update(subject);
-                toast.success('Materia actualizada correctamente');
+                const { message, error } = await subjectsAPI.update(subject);
+                if (error) return toast.error(error);
+                toast.success(message);
             }
             else
             {
-                await subjectsAPI.create(subject);
-                toast.success('Materia creada correctamente');
+                const { message, error } = await subjectsAPI.create(subject);
+                if (error) return toast.error(error);
+                toast.success(message);
             }
             
             form.reset();

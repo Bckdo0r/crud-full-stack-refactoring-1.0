@@ -39,6 +39,12 @@ function handlePost($conn)
         return;
     }
 
+    if (subjectNameExists($conn, $name)) {
+        http_response_code(409);
+        echo json_encode(["error" => "Ya existe una materia con ese nombre"]);
+        return;
+    }
+
     $result = createSubject($conn, $name);
 
     if ($result['inserted'] > 0) {
@@ -67,10 +73,9 @@ function handlePut($conn)
         return;
     }
 
-    $existing = getSubjectByName($conn, $name);
-    if ($existing && $existing['id'] != $id) {
-        http_response_code(409); 
-        echo json_encode(["error" => "Ya existe otra materia con ese nombre"]);
+    if (subjectNameExists($conn, $name)) {
+        http_response_code(409);
+        echo json_encode(["error" => "Ya existe una materia con ese nombre"]);
         return;
     }
 
