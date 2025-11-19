@@ -33,19 +33,22 @@ function setupFormHandler() {
          try {
             if (student.id) {
                 await studentsAPI.update(student);
+                loadStudents();
             }
             else {
-                const existe_mail=await studentsAPI.existeEmail(student.email);
+                const existe_mail=await studentsAPI.create(student);
                 if (existe_mail) {
-                    alert('El correo ya existe. Por favor, ingrese otro.');
-                    return;
+                    toast.error('mail en uso');
                 }
+
                 else {
                     await studentsAPI.create(student);
+                    toast.success('estudiante creado con exito');
+                    loadStudents();
                 }
             }
             clearForm();
-            loadStudents();
+            
         }
         catch (err) {
             console.error(err.message);
@@ -172,3 +175,5 @@ async function confirmDelete(id) {
         console.error('Error al borrar:', err.message);
     }
 }
+
+
