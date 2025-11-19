@@ -9,6 +9,17 @@
 *    Iteration   : 3.0 ( prototype )
 */
 
+function validateSubjectToStudent($conn,$subject_id, $student_id)
+{
+    $result = getSubjectsByStudent($conn, $student_id);
+    for ($i = 0; $i < count($result); $i++) {
+        if ($result[$i]["subject_id"] == $subject_id) {
+            return false;
+        }
+    }
+    return true;
+}                    
+
 function assignSubjectToStudent($conn, $student_id, $subject_id, $approved) 
 {
     $sql = "INSERT INTO students_subjects (student_id, subject_id, approved) VALUES (?, ?, ?)";

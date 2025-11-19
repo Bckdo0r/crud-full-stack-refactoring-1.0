@@ -11,6 +11,7 @@
 import { studentsAPI } from '../api/studentsAPI.js';
 import { subjectsAPI } from '../api/subjectsAPI.js';
 import { studentsSubjectsAPI } from '../api/studentsSubjectsAPI.js';
+import { toast } from '../utils/toaster.js';
 
 document.addEventListener('DOMContentLoaded', () => 
 {
@@ -63,14 +64,19 @@ function setupFormHandler()
 
         try 
         {
+            let response;
             if (relation.id) 
             {
-                await studentsSubjectsAPI.update(relation);
+                response = await studentsSubjectsAPI.update(relation);
             } 
             else 
             {
-                await studentsSubjectsAPI.create(relation);
+                response = await studentsSubjectsAPI.create(relation);
             }
+
+            const { message, error } = response;
+            if (error) return toast.error(error);
+            toast.success(message);
             clearForm();
             loadRelations();
         } 
