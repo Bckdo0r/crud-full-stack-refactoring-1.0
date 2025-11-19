@@ -1,72 +1,73 @@
 <?php
 /**
-*    File        : backend/controllers/studentsSubjectsController.php
-*    Project     : CRUD PHP
-*    Author      : Tecnologías Informáticas B - Facultad de Ingeniería - UNMdP
-*    License     : http://www.gnu.org/licenses/gpl.txt  GNU GPL 3.0
-*    Date        : Mayo 2025
-*    Status      : Prototype
-*    Iteration   : 3.0 ( prototype )
-*/
+ *    File        : backend/controllers/studentsSubjectsController.php
+ *    Project     : CRUD PHP
+ *    Author      : Tecnologías Informáticas B - Facultad de Ingeniería - UNMdP
+ *    License     : http://www.gnu.org/licenses/gpl.txt  GNU GPL 3.0
+ *    Date        : Mayo 2025
+ *    Status      : Prototype
+ *    Iteration   : 3.0 ( prototype )
+ */
 
 require_once("./repositories/studentsSubjects.php");
 
-function handleGet($conn) 
+function handleGet($conn)
 {
     $studentsSubjects = getAllSubjectsStudents($conn);
     echo json_encode($studentsSubjects);
 }
 
-function handlePost($conn) 
+function handlePost($conn)
 {
     $input = json_decode(file_get_contents("php://input"), true);
-    
+
+    if (!validateSubjectToStudent($conn, $input['subject_id'], $input['student_id'])) {
+        http_response_code(500);
+        echo json_encode(["error" => "El alumno ya tiene esa materia asignada"]);
+    }
+
+
     $result = assignSubjectToStudent($conn, $input['student_id'], $input['subject_id'], $input['approved']);
-    if ($result['inserted'] > 0) 
-    {
+    if ($result['inserted'] > 0) {
         echo json_encode(["message" => "Asignación realizada"]);
-    } 
-    else 
-    {
+    } else {
         http_response_code(500);
         echo json_encode(["error" => "Error al asignar"]);
     }
 }
 
-function handlePut($conn) 
+function handlePut($conn)
 {
     $input = json_decode(file_get_contents("php://input"), true);
 
-    if (!isset($input['id'], $input['student_id'], $input['subject_id'], $input['approved'])) 
-    {
+    if (!isset($input['id'], $input['student_id'], $input['subject_id'], $input['approved'])) {
         http_response_code(400);
         echo json_encode(["error" => "Datos incompletos"]);
         return;
     }
 
+    if (!validateSubjectToStudent($conn, $input['subject_id'], $input['student_id'])) {
+        http_response_code(500);
+        echo json_encode(["error" => "El alumno ya tiene esa materia asignada"]);
+    }
+
     $result = updateStudentSubject($conn, $input['id'], $input['student_id'], $input['subject_id'], $input['approved']);
-    if ($result['updated'] > 0) 
-    {
+    if ($result['updated'] > 0) {
         echo json_encode(["message" => "Actualización correcta"]);
-    } 
-    else 
-    {
+    } else {
         http_response_code(500);
         echo json_encode(["error" => "No se pudo actualizar"]);
     }
 }
 
-function handleDelete($conn) 
+function handleDelete($conn)
 {
     $input = json_decode(file_get_contents("php://input"), true);
 
     $result = removeStudentSubject($conn, $input['id']);
-    if ($result['deleted'] > 0) 
-    {
+    if ($result['deleted'] > 0) {
         echo json_encode(["message" => "Relación eliminada"]);
-    } 
-    else 
-    {
+    } else {
         http_response_code(500);
         echo json_encode(["error" => "No se pudo eliminar"]);
     }
