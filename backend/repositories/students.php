@@ -79,7 +79,10 @@ function updateStudent($conn, $id, $fullname, $email, $age)
 
 function deleteStudent($conn, $id) 
 {
-    $sql = "DELETE FROM students WHERE id = ?";
+    $sql = "DELETE FROM students WHERE id = ? AND id NOT IN (
+        SELECT student_id
+        FROM students_subjects
+    )";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $id);
     $stmt->execute();
