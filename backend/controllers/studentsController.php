@@ -92,6 +92,8 @@ function handleDelete($conn)
 {
     $input = json_decode(file_get_contents("php://input"), true);
 
+
+
     $result = deleteStudent($conn, $input['id']);
     if ($result['deleted'] > 0) 
     {

@@ -9,6 +9,7 @@
 */
 
 import { studentsAPI } from '../api/studentsAPI.js';
+import { toast } from '../utils/toaster.js'
 
 //2.0
 //For pagination:
@@ -160,7 +161,11 @@ async function confirmDelete(id) {
     if (!confirm('¿Estás seguro que deseas borrar este estudiante?')) return;
 
     try {
-        await studentsAPI.remove(id);
+        const { message, error } = await studentsAPI.remove(id);
+        if (error)
+            return toast.error(error)
+        
+        toast.success(message)
         loadStudents();
     }
     catch (err) {
