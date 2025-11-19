@@ -24,6 +24,7 @@ function handlePost($conn)
     if (!validateSubjectToStudent($conn, $input['subject_id'], $input['student_id'])) {
         http_response_code(500);
         echo json_encode(["error" => "El alumno ya tiene esa materia asignada"]);
+        return;
     }
 
 
@@ -49,6 +50,7 @@ function handlePut($conn)
     if (!validateSubjectToStudent($conn, $input['subject_id'], $input['student_id'])) {
         http_response_code(500);
         echo json_encode(["error" => "El alumno ya tiene esa materia asignada"]);
+        return;
     }
 
     $result = updateStudentSubject($conn, $input['id'], $input['student_id'], $input['subject_id'], $input['approved']);
