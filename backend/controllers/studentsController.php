@@ -55,7 +55,7 @@ function handlePost($conn)
 
     if (emailExists($conn, $input['email']))
     {
-        http_response_code(400);
+        http_response_code(409);
         echo json_encode(["error" => "El email ya existe. Por favor usa otro email"]);
         return;
     }
